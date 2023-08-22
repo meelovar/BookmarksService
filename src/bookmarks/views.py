@@ -34,14 +34,21 @@ class CollectionViewSet(BaseMixin, mixins.UpdateModelMixin, viewsets.GenericView
 
 class BookmarkCollectionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsOwner]
-    serializer_class = BookmarkCollectionSerializer
     queryset = Bookmark.objects.all()
+
+    def get_serializer_class(self):
+        result = BookmarkCollectionSerializer
+
+        if self.action == "list":
+            result = BookmarkSerializer
+
+        return result
 
     def get_queryset(self):
         user = self.request.user
         collection_id = self.kwargs.get("id")
 
-        return Bookmark.objects.filter(created_by=user, collection=collection_id)
+        return Bookmark.objects.filter(created_by=user, collections=collection_id)
 
     def create(self, request, *args, **kwargs):
         user = self.request.user
