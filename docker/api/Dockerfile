@@ -1,12 +1,39 @@
-FROM python:3.11-slim
+FROM python:3.12-slim as base
 
-RUN useradd -ms /bin/bash python
+ARG USER_ID=10001
+ARG USER_NAME=py-user
+ARG USER_HOME=/home/$USER_NAME
 
-USER python
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
-WORKDIR /home/python/app
 
-COPY --chown=python src requirements.txt ./
+RUN useradd -d $USER_HOME -u $USER_ID $USER_NAME
 
-RUN python3 -m pip install --no-cache-dir --no-warn-script-location --upgrade pip && \
-    python3 -m pip install --no-cache-dir --no-warn-script-location -r requirements.txt
+USER $USER_NAME
+
+WORKDIR $USER_HOME/app
+
+FROM base as builder
+
+ENV PIP_NO_CACHE_DIR=0
+ENV POETRY_NO_INTERACTION=1
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1
+ENV PATH=$USER_HOME/.local/bin:$PATH
+
+RUN pip install --user poetry
+
+COPY --chown=$USER_NAME:$USER_NAME pyproject.toml ./
+
+RUN poetry install --only main
+
+FROM base as runtime
+
+ARG VENV_PATH=$USER_HOME/venv
+
+ENV PATH=$VENV_PATH/bin:$PATH
+
+COPY --from=builder --chown=$USER_NAME:$USER_NAME $USER_HOME/app/.venv $VENV_PATH
+COPY --chown=$USER_NAME:$USER_NAME src ./
+
+EXPOSE 8000
