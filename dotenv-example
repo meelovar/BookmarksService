@@ -3,3 +3,8 @@ POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=bookmarks_db
+
+MQ_HOST=rabbitmq
+MQ_PORT=5672
+MQ_USER=rabbitmq
+MQ_PASSWORD=rabbitmq

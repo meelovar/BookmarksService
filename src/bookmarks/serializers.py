@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from bookmarks import tasks
 from bookmarks.models import Bookmark, Collection
-from bookmarks.services import PageInfoGetter, get_html_page
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
@@ -24,17 +24,15 @@ class BookmarkSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        link = validated_data.get("link")
         user = self.context["request"].user
-        page_info = PageInfoGetter(get_html_page(link))
 
         validated_data["created_by"] = user
-        validated_data["title"] = page_info.get_title()
-        validated_data["description"] = page_info.get_description()
-        validated_data["preview_image"] = page_info.get_image()
-        validated_data["link_type"] = page_info.get_type()
 
-        return super().create(validated_data)
+        result = super().create(validated_data)
+
+        tasks.get_page_info.delay(result.pk)
+
+        return result
 
 
 class CollectionSerializer(serializers.ModelSerializer):

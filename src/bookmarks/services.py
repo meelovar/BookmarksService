@@ -39,7 +39,7 @@ class PageInfoGetter:
 
     def __do_get(self, name: str):
         element = self.__soup.find("meta", property=f"og:{name}")
-        result = None
+        result = ""
 
         if not element:
             element = self.__soup.find("meta", {"name": name})
