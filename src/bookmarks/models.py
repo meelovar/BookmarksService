@@ -10,11 +10,11 @@ class Bookmark(models.Model):
         Music = "music"
         Video = "video"
 
-    title = models.CharField(max_length=256, null=True)
-    description = models.TextField(max_length=512, null=True)
+    title = models.CharField(max_length=256, default="")
+    description = models.TextField(max_length=512, default="")
     link = models.URLField(max_length=512)
     link_type = models.CharField(max_length=32, choices=LinkType.choices, default=LinkType.Website)
-    preview_image = models.URLField(null=True)
+    preview_image = models.URLField(default="")
     created_by = models.ForeignKey(auth.get_user_model(), models.CASCADE)
     saved_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
