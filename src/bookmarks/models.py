@@ -19,6 +19,8 @@ class Bookmark(models.Model):
     saved_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self) -> str:
+        return f"{super().__str__()}: {self.link}"
 
 class Collection(models.Model):
     title = models.CharField(max_length=64)
@@ -27,3 +29,6 @@ class Collection(models.Model):
     created_by = models.ForeignKey(auth.get_user_model(), models.CASCADE)
     saved_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{super().__str__()}: {self.title}"
